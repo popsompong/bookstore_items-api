@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/popsompong/bookstore_items-api/clients/elasticsearch"
 	"net/http"
 	"time"
 )
@@ -11,8 +12,9 @@ var (
 )
 
 func StartApplication() {
-	mapUrls()
+	elasticsearch.Init()
 
+	mapUrls()
 	srv := &http.Server{
 		Addr:              "127.0.0.1:8080",
 		WriteTimeout:      500 * time.Millisecond,
