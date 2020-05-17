@@ -18,7 +18,7 @@ func Init() {
 		elastic.SetURL("http://127.0.0.1:9200"),
 		elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetErrorLog(log),
-		//elastic.SetInfoLog(log.New(os.Stdout, x"", log.LstdFlags)),
+		elastic.SetInfoLog(log),
 	)
 	if err != nil {
 		panic(err)
