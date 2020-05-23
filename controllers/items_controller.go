@@ -2,13 +2,16 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/popsompong/bookstore_items-api/domain/items"
+	"github.com/popsompong/bookstore_items-api/domain/queries"
 	"github.com/popsompong/bookstore_items-api/services"
 	"github.com/popsompong/bookstore_items-api/utils/http_utils"
 	"github.com/popsompong/bookstore_oauth-go/oauth"
 	"github.com/popsompong/bookstore_utils-go/rest_errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -16,8 +19,9 @@ var (
 )
 
 type itemsControllerInterface interface {
-	Create(w http.ResponseWriter, r *http.Request)
-	Get(w http.ResponseWriter, r *http.Request)
+	Create(http.ResponseWriter, *http.Request)
+	Get(http.ResponseWriter, *http.Request)
+	Search(http.ResponseWriter, *http.Request)
 }
 
 type itemsController struct {
@@ -65,5 +69,38 @@ func (c *itemsController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *itemsController) Get(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	itemId := strings.TrimSpace(vars["id"])
+
+	item, err := services.ItemsService.Get(itemId)
+	if err != nil {
+		http_utils.RespondError(w, err)
+		return
+	}
+
+	http_utils.RespondJson(w, http.StatusOK, item)
+}
+
+func (c *itemsController) Search(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		apiErr := rest_errors.NewBadRequestError("invalid json body")
+		http_utils.RespondError(w, apiErr)
+		return
+	}
+	var query queries.EsQuery
+	if err := json.Unmarshal(bytes, &query); err != nil {
+		apiErr := rest_errors.NewBadRequestError("invalid json body")
+		http_utils.RespondError(w, apiErr)
+		return
+	}
+
+	items, searhErr := services.ItemsService.Search(query)
+	if searhErr != nil {
+		http_utils.RespondError(w, searhErr)
+		return
+	}
+	http_utils.RespondJson(w, http.StatusOK, items)
 
 }
