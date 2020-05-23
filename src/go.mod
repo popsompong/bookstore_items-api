@@ -3,6 +3,8 @@ module github.com/popsompong/bookstore_items-api
 go 1.14
 
 require (
+	github.com/fortytw2/leaktest v1.3.0 // indirect
+	github.com/google/go-cmp v0.4.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/olivere/elastic v6.2.31+incompatible
